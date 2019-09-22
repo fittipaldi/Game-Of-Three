@@ -7,6 +7,15 @@ public class ObjResponse {
 	private boolean status;
 	private String message;
 	private String data;
+	private String sessionId;
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
 
 	public String getData() {
 		return data;
@@ -38,6 +47,7 @@ public class ObjResponse {
 		obj.addProperty("status", status);
 		obj.addProperty("message", message);
 		obj.addProperty("data", data);
+		obj.addProperty("sessionId", sessionId);
 
 		return obj;
 	}

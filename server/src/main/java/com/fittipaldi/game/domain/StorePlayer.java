@@ -70,11 +70,20 @@ public class StorePlayer {
 			});
 
 		}
-
-		System.out.println(jArr.toString());
-
 		System.setProperty(keyPlayer, jArr.toString());
 
+	}
+
+	public ArrayList getDataObj() {
+		JsonArray jArr = new JsonArray();
+		ArrayList listPla = new ArrayList();
+
+		String plyers = System.getProperty(keyPlayer);
+		if (plyers != null) {
+			Gson gJson = new Gson();
+			listPla = gJson.fromJson(plyers, ArrayList.class);
+		}
+		return listPla;
 	}
 
 	public String getData() {

@@ -5,15 +5,162 @@
     <title>Game Of Three - Client</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style type="text/css">
+        .hide {
+            display: none;
+        }
+    </style>
+
 </head>
-<body>
-
-tamo aqui
+<body class="text-center">
 
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+        </div>
+        <div class="col-sm">
+            <form class="form-signin" id="init-form">
+                <h1 class="h3 mb-3 font-weight-normal">Start the Game Of Three</h1>
+
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" aria-describedby="emailHelp" placeholder="Enter your Name">
+                </div>
+
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Add Player</button>
+            </form>
+        </div>
+        <div class="col-sm">
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md" id="box-players">
+            Waiting Players
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md" id="box-mach-p1">
+
+        </div>
+        <div class="col-md" id="box-mach-p2">
+
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            <button type="button" class="btn btn-success hide" id="make-match">Start a Match</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+
+    let p1Id = '';
+    let p2Id = '';
+
+    function makeMatch() {
+        if (p1Id) {
+            $('#box-mach-p1').html($('#' + p1Id).data('name'));
+        }
+
+        if (p2Id) {
+            $('#box-mach-p2').html($('#' + p2Id).data('name'));
+        }
+
+        if (p1Id && p2Id) {
+            $('#make-match').removeClass('hide');
+        }
+    }
+
+    $(function () {
+
+        $('#make-match').on('click', function (e) {
+            e.preventDefault();
+
+            let p1Name = $('#' + p1Id).data('name');
+            let p2Name = $('#' + p2Id).data('name');
+
+            if (p1Name && p2Name && (p1Name !== p2Name)) {
+                $.get('http://localhost:8080/match?p1=Play1&p2=Play2', function (data) {
+                    if (data.status) {
+                        alert(data.message);
+                    }
+                }, 'json');
+            } else {
+                alert('Pleas choose two players and different.')
+            }
+
+        });
+
+        $(document).on('click', '.play1', function (e) {
+            e.preventDefault();
+            $('.play1').removeClass('btn-secondary');
+            $(this).addClass('btn-primary');
+            p1Id = $(this).attr('id');
+            makeMatch();
+        });
+
+        $(document).on('click', '.play2', function (e) {
+            e.preventDefault();
+            $('.play2').removeClass('btn-secondary');
+            $(this).addClass('btn-primary');
+            p2Id = $(this).attr('id');
+            makeMatch();
+        });
+
+        $('#init-form').on('submit', function (e) {
+            e.preventDefault();
+            const name = $('#name').val();
+            if (name) {
+                $.get('http://localhost:8080/index?name=' + name, function (data) {
+                    if (data.status) {
+                        alert(data.message);
+                    }
+                }, 'json');
+            }
+        });
+
+        setInterval(function () {
+            $.get('http://localhost:8080/players', function (data) {
+                if (data.status) {
+                    if (data.data) {
+                        const players = jQuery.parseJSON(data.data);
+                        let htmlPla = [];
+                        for (let player of players) {
+                            htmlPla.push(`<li class="list-group-item">
+                                ${player.name}
+                                <button type="button" class="btn btn-secondary btn-sm play1" id="p1-${player.id}" data-id="${player.id}" data-name="${player.name}">Set as P1</button>
+                                <button type="button" class="btn btn-secondary btn-sm play2" id="p2-${player.id}" data-id="${player.id}" data-name="${player.name}">Set as P2</button>
+                            </li>`);
+                        }
+                        $('#box-players').html('<ul class="list-group">' + htmlPla.join('') + '</ul>');
+
+                        $('#' + p1Id).removeClass('btn-secondary').addClass('btn-primary');
+                        $('#' + p2Id).removeClass('btn-secondary').addClass('btn-primary');
+
+                        makeMatch();
+                    }
+                }
+            }, 'json');
+        }, 1000);
+    });
+</script>
 
 </body>
 </html>
