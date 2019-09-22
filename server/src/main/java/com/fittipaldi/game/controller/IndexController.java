@@ -172,4 +172,10 @@ public class IndexController {
 		return jRes;
 	}
 
+	@RequestMapping("test")
+	@ResponseBody
+	public String test(HttpServletRequest req, HttpServletResponse res) {
+		return "OK";
+	}
+
 }
